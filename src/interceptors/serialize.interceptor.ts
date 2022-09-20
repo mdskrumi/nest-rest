@@ -15,10 +15,7 @@ export function Serialize(dto: any) {
 
 export class SerializeInterceptor implements NestInterceptor {
   constructor(private dto: any) {}
-
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('Before Handle Function Call', context);
-
     return next.handle().pipe(
       map((data: any) => {
         return plainToInstance(this.dto, data, {

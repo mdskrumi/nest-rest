@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  Session,
 } from '@nestjs/common';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { AuthService } from './auth/auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
@@ -16,16 +19,44 @@ import { UsersService } from './users.service';
 @Controller('auth')
 @Serialize(UserDto)
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private authService: AuthService,
+  ) {}
 
   @Post('signup')
-  createUser(@Body() body: CreateUserDto) {
-    return this.userService.create(body);
+  async createUser(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signup(body.email, body.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('signin')
+  async signin(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signin(body.email, body.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('signout')
+  async signout(@Session() session: any) {
+    session.userId = null;
+    return 'Signed out';
+  }
+
+  // @Get('whoami')
+  // findUserBySessionId(@Session() session) {
+  //   return this.userService.findOne(session.userId);
+  // }
+
+  @Get('whoami')
+  findUserBySessionId(@CurrentUser() user) {
+    console.log(user);
+    return user;
   }
 
   @Get(':id')
   findUserById(@Param('id') id: string) {
-    console.log('handler is called');
     return this.userService.findOne(+id);
   }
 
