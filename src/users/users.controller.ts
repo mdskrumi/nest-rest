@@ -54,7 +54,6 @@ export class UsersController {
   @Get('whoami')
   @UseGuards(AuthGuard)
   findUserBySessionId(@CurrentUser() user) {
-    console.log(user);
     return user;
   }
 

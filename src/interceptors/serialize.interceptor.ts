@@ -9,6 +9,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { plainToInstance } from 'class-transformer';
 
+/*
+
+*/
 export function Serialize(dto: any) {
   return UseInterceptors(new SerializeInterceptor(dto));
 }
